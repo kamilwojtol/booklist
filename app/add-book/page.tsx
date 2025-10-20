@@ -1,11 +1,49 @@
-import { Input, Select } from "@headlessui/react";
+"use client";
+
+import { Input, Button } from "@headlessui/react";
+import { ChangeEvent, useState } from "react";
 
 export default function AddBook() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  async function searchBooks(e: ChangeEvent<HTMLInputElement>): Promise<void> {
+    setSearchQuery(e.target.value);
+    await findBooksBySearchQuery(e.target.value);
+  }
+
+  async function findBooksBySearchQuery(query: string): Promise<void> {
+    if (searchQuery.length >= 3) {
+      const data = await fetch(
+        `https://openlibrary.org/search.json?q=${query}&page=1&sort=want_to_read&lang=en`
+      );
+      setSearchResults(await data.json());
+      console.log(searchResults);
+    }
+  }
+
   return (
     <div className="flex justify-center flex-col">
       <h2 className="mt-3 ml-2">Add Book</h2>
       <form className="mx-auto w-1/3">
-        <label
+        <label className="mt-2 text-white font-bold" htmlFor="search">
+          Search book
+        </label>
+        <Input
+          type="text"
+          className="mt-3 h-10 block w-full rounded-lg border-none bg-white/5 hover:bg-white/7 focus:bg-white/7 px-3 py-1.5 text-sm/6 text-white outline-0"
+          id="search"
+          name="search"
+          value={searchQuery}
+          onChange={(e) => searchBooks(e)}
+        />
+        <Button
+          className="mt-2 p-2 h-10 w-50 rounded-lg bg-emerald-700 hover:bg-emerald-500 border-none cursor-pointer"
+          type="submit"
+        >
+          Add Book
+        </Button>
+        {/* <label
           className="mt-2 text-white font-bold h-20 cursor-pointer"
           htmlFor="file"
         >
@@ -52,7 +90,7 @@ export default function AddBook() {
               Novel
             </option>
           </Select>
-        </label>
+        </label> */}
       </form>
     </div>
   );
